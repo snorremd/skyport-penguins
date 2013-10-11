@@ -1,4 +1,4 @@
-var skyport = require('../nodejs/skyport.js');
+var skyport = require('./nodejs/skyport.js');
 if(process.argv.length != 3){
     console.log("Usage: node penguinwalker.js name_of_the_bot");
     process.exit();
