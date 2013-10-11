@@ -103,17 +103,15 @@ function got_gamestart(map, players){
 function got_gamestate(turn_number, map, players){
     console.log("got gamestate");
     if(players[0]["name"] == myname){ // its our turn
-	console.log("my turn!");
-	random_move();
-	random_move();
+		console.log("my turn!");
+		
+		console.log('MAP:');
+		console.log(JSON.stringify(map));
 
-    console.log('MAP:');
-    console.log(JSON.stringify(map));
-
-    console.log('PLAYERS');
-    console.log(JSON.stringify(players));
-	// randomly shoot one of the weapons, upgrade or mine the tile
-	randomchoice([random_laser, random_mortar, random_droid, upgrade, mine])();
+		console.log('PLAYERS');
+		console.log(JSON.stringify(players));
+		// randomly shoot one of the weapons, upgrade or mine the tile
+		// randomchoice([laser, mortar, droid, upgrade, mine])();
     }
 }
 
