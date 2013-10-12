@@ -16,6 +16,15 @@ function chooseWeapons(map, players) {
 	connection.send_loadout(myweapons[0], myweapons[1]); // tell the server
 }
 
+function getPlayerCoordinates(players) {
+
+	coords = {
+		us: {j: j, k: k},
+		enemy: {j: j, k: k}
+	};
+}
+
+// from and to are coord objects
 function toDirection(from, to) {
 	var directon = "";
 
