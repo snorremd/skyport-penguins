@@ -1,4 +1,6 @@
-var skyport = require('./nodejs/skyport.js');
+var skyport = require('./nodejs/skyport.js'),
+	astar = require('astar.js');
+
 if(process.argv.length != 3){
     console.log("Usage: node penguinwalker.js name_of_the_bot");
     process.exit();
@@ -126,7 +128,6 @@ function upgrade(){
 function mine(){connection.mine();}
 
 function move(direction){
-    directions = ["up", "down", "left-up", "left-down", "right-up", "right-down"];
     connection.move(direction);
 }
 
@@ -173,6 +174,27 @@ function got_gamestate(turn_number, map, players){
     console.log("got gamestate");
     if(players[0]["name"] == myname){ // its our turn
 		console.log("my turn!");
+
+		var startNode;
+
+		if(players[0].name === myname) {
+			startNode = players[0].position.split(', ');
+			startNode = {
+				j: startNode[0],
+				k: startNode[1]
+			}
+		}
+
+		var endNode = {
+			j: 15,
+			k: 6
+		};
+
+		var nodeList = astar.astar(map, startNode, endNode);
+
+		for(var i = 0;i<3;i++) {
+			move(toDirection(nodeList[i], nodeList[i+1]));
+		}
 		
 		console.log('MAP:');
 		console.log(JSON.stringify(map));
