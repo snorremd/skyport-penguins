@@ -5,7 +5,7 @@ var pq = require('priority_queue'),
 function astar(map, start, end) {
 	var map = mapOfNodes(map),
 		startNode = map[start.j][start.k],
-		endNode = map[start.j][end.k];
+		endNode = map[end.j][end.k];
 
 	return path(map, startNode, endNode);
 
