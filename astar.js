@@ -40,6 +40,7 @@ function mapOfNodes(map) {
 
 function path(map, startNode, endNode) {
 	
+<<<<<<< HEAD
 
 	var closedSet = new sets.Set(),
 		openQueue = pq.PriorityQueue(compare),
@@ -104,6 +105,36 @@ function elementNotInQueue(queue, element) {
 
 function reconstructPath(cameFrom, currentNode) {
 	return null;
+=======
+	var closedList = [startNode],
+		surroundingNodes = surroundingNodes(startNode),
+		cheapestNode,
+		lowestFScore = Number.MAX_VALUE,
+		openQueue = PriorityQueue({ low: true });
+
+	costSurroundingNodes = costSurroundingNodes(map, startNode, endNode);
+
+	for(var i = 0; i < surroundingNodes.length; i++) {
+		surroundingNodes[i].fScore = gCost(surroundingNodes[i]); + hCost(map, surroundingNodes[i], endNode);
+		openQueue.push(surroundingNodes[i], surroundingNodes[i].fScore);
+	}
+}
+
+function recursivePath(map, currentNode, endNode, openQueue) {
+	var surroundingNodes = surroundingNodes(startNode),
+		cheapestNode,
+		lowestFScore = Number.MAX_VALUE,
+		openQueue = PriorityQueue({ low: true });
+
+	for(var i = 0;i<)
+
+	costSurroundingNodes = costSurroundingNodes(map, startNode, endNode);
+
+	for(var i = 0; i < surroundingNodes.length; i++) {
+		surroundingNodes[i].fScore = gCost(surroundingNodes[i]); + hCost(map, surroundingNodes[i], endNode);
+		openQueue.push(surroundingNodes[i], surroundingNodes[i].fScore);
+	}
+>>>>>>> 30d30fec554dc4396929c210e7d99d2e152ac8cc
 }
 
 function costSurroundingNodes(map, surroundingNodes, endNode) {
