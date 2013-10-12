@@ -53,6 +53,8 @@ function chooseWeapons(map) {
 	else if(minerals[0].toLowerCase === 'e' && minerals[1].toLowerCase === 'r' || minerals[0].toLowerCase === 'r' && minerals[1].toLowerCase === 'e'){
 		myweapons = ['mortar', 'laser'];
 	}
+
+	connection.send_loadout(myweapons[0], myweapons[1]); // tell the server
 }
 
 chooseWeapons(map);
