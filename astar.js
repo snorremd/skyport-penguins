@@ -8,8 +8,7 @@ exports.astar = astar;
 
 function path(map, startNode, endNode) {
 	
-	var openList = [],
-		closedList = [startNode],
+	var closedList = [startNode],
 		surroundingNodes = surroundingNodes(startNode),
 		cheapestNode,
 		lowestFScore = Number.MAX_VALUE,
@@ -21,7 +20,22 @@ function path(map, startNode, endNode) {
 		surroundingNodes[i].fScore = gCost(surroundingNodes[i]); + hCost(map, surroundingNodes[i], endNode);
 		openQueue.push(surroundingNodes[i], surroundingNodes[i].fScore);
 	}
+}
 
+function recursivePath(map, currentNode, endNode, openQueue) {
+	var surroundingNodes = surroundingNodes(startNode),
+		cheapestNode,
+		lowestFScore = Number.MAX_VALUE,
+		openQueue = PriorityQueue({ low: true });
+
+	for(var i = 0;i<)
+
+	costSurroundingNodes = costSurroundingNodes(map, startNode, endNode);
+
+	for(var i = 0; i < surroundingNodes.length; i++) {
+		surroundingNodes[i].fScore = gCost(surroundingNodes[i]); + hCost(map, surroundingNodes[i], endNode);
+		openQueue.push(surroundingNodes[i], surroundingNodes[i].fScore);
+	}
 }
 
 function costSurroundingNodes(map, surroundingNodes, endNode) {
