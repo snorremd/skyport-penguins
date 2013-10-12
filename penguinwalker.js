@@ -1,4 +1,6 @@
-var skyport = require('./nodejs/skyport.js');
+var skyport = require('./nodejs/skyport.js'),
+	astar = require('./astar.js');
+
 if(process.argv.length != 3){
     console.log("Usage: node penguinwalker.js name_of_the_bot");
     process.exit();
@@ -8,7 +10,7 @@ var myname = process.argv[2],
 	myweapons = [],
 	map = [];
 
-function chooseWeapons(map) {
+function chooseWeapons(map, players) {
 	// we should probably look at the map or just go with a fixed weapons strategy
 	// available weapons: laser, mortar, droid
 	myweapons = ['laser', 'mortar']; // choose weapons
@@ -16,6 +18,73 @@ function chooseWeapons(map) {
 	connection.send_loadout(myweapons[0], myweapons[1]); // tell the server
 }
 
+function getPlayerCoordinates(players) {
+
+	coords = {
+		us: {j: j, k: k},
+		enemy: {j: j, k: k}
+	};
+}
+
+// from and to are coord objects
+function toDirection(from, to) {
+	var directon = "";
+
+	if(from.j -1 === to.j && from.k -1 === to.k) {
+		direction = "up";
+	}
+	else if(from.j -1 === to.j && from.k === to.k) {
+		direction = "right-up";
+	}
+	else if(from.j === to.j && from.k - 1 === to.j) {
+		direction = "left-up";
+	}
+	else if(from.j === to.j && from.k + 1 === to.k) {
+		direction = "right-down";
+	}
+	else if(from.j + 1 === to.j && from.k === to.k) {
+		direction = "left-down"
+	}
+	else if(from.j + 1 === to.j && from.k + 1 === to.k) {
+		direction = "down";
+	}
+
+	return direction;
+}
+
+function toCoords(from, direction) {
+	if(direction === "up") {
+		return { j: from.j-1, k: from.k-1 };
+	}
+
+	else if(direction === "right-up") {
+		return { j: from.j-1, k: from.k };
+	}
+
+	else if(direction === "left-up") {
+		return { j: from.j, k: from.k-1 };
+	}
+
+	else if(direction === "right-up") {
+		return { j: from.j-1, k: from.k };
+	}
+
+	else if(direction === "left-up") {
+		return { j: from.j, k: from.k-1 };
+	}
+
+	else if(direction === "right-down") {
+		return { j: from.j, k: from.k+1 };
+	}
+
+	else if(direction === "left-down") {
+		return { j: from.j+1, k: from.k };
+	}
+
+	else if(direction === "down") {
+		return { j: from.j+1, k: from.k+1 };		
+	}
+}
 
 /* --- calculations --- */
 /* AOE = level 4 */
@@ -31,6 +100,8 @@ function calculateDamage(weapon, level, unusedTurns) {
 	return Math.round(damage[weapon][level] + unusedTurns*(0.2*damage[weapon][level]));
 }
 
+calculateDamage('droid', 2, 1);
+
 // heuristic function kinda
 function calculateMovementCost(map, players) {
 	var tileCosts = {
@@ -41,7 +112,7 @@ function calculateMovementCost(map, players) {
 
 		// RESOURCES		
 		C: 0, // SCRAP - UPGRADE DROID
-		E: 0, // EXPLODIUM - UPGRADE LASER
+		E: 0, // EXPLODIUM - UPGRADE MORTER
 		R: 0,  // RUBIDIUM - UPGRADE LASER
 		
 		// NEUTRAL
@@ -57,7 +128,6 @@ function upgrade(){
 function mine(){connection.mine();}
 
 function move(direction){
-    directions = ["up", "down", "left-up", "left-down", "right-up", "right-down"];
     connection.move(direction);
 }
 
@@ -104,6 +174,34 @@ function got_gamestate(turn_number, map, players){
     console.log("got gamestate");
     if(players[0]["name"] == myname){ // its our turn
 		console.log("my turn!");
+
+		var startNode;
+
+		console.log(players[0].position.split(', '));
+
+		startNode = players[0].position.split(', ');
+		startNode = {
+			j: startNode[0],
+			k: startNode[1]
+		}
+
+		console.log('before endnode');
+
+		var endNode = {
+			j: 15,
+			k: 6
+		};
+
+		console.log('before nodelist');
+
+		var nodeList = astar.astar(map, startNode, endNode);
+
+
+		console.log('after astar');
+
+		// for(var i = 0;i<3;i++) {
+		// 	move(toDirection(nodeList[i], nodeList[i+1]));
+		// }
 		
 		console.log('MAP:');
 		console.log(JSON.stringify(map));
