@@ -1,0 +1,9 @@
+{
+  "name": "skyport_penguin",
+  "version": "0.0.1",
+  "description": "Awesome project",
+  "main": "./penguinwalker.js",
+  "dependencies": {
+    "priority_queue": "~0.1.3"
+  }
+}
