@@ -59,12 +59,12 @@ function path(map, startNode, endNode) {
 
 		closedList.push(current);
 		neighbors = surroundingNodes(current);
-		for(int i = 0; i < neighbors.length; i++) {
+		for(var i = 0; i < neighbors.length; i++) {
 			neighbor = neighbors[i];
 			tentativeGScore = gScore[current.j + "" + current.k] + gCost(neighbor);
 			tentativeFScore = tenativeGScore + hCost(map, current, neighbor);
 
-			if closedSet.has(neighbor) && tentativeFScore >= fScore[neighbor.j + "," + neighbor.k] {
+			if(closedSet.has(neighbor) && tentativeFScore >= fScore[neighbor.j + "," + neighbor.k]) {
 				// Do nothing
 			} else if(elementNotInQueue(queue, neighbor) || tentativeFScore > fScore[neighbor.j + "," + neighbor.k]) {
 				cameFrom[neighbor.j + "," + neighbor.k] = current;
@@ -190,7 +190,7 @@ function surroundingNodes(map, node) {
 
 	// Move upwards
 	if(node.j > 0 && node.k > 0) {
-		surroundingNodes.push(map{node.j-1][node.k-1]);
+		surroundingNodes.push(map[node.j-1][node.k-1]);
 	}
 
 	// Right up

@@ -1,5 +1,5 @@
 var skyport = require('./nodejs/skyport.js'),
-	astar = require('astar.js');
+	astar = require('./astar.js');
 
 if(process.argv.length != 3){
     console.log("Usage: node penguinwalker.js name_of_the_bot");
@@ -192,9 +192,9 @@ function got_gamestate(turn_number, map, players){
 
 		var nodeList = astar.astar(map, startNode, endNode);
 
-		for(var i = 0;i<3;i++) {
-			move(toDirection(nodeList[i], nodeList[i+1]));
-		}
+		// for(var i = 0;i<3;i++) {
+		// 	move(toDirection(nodeList[i], nodeList[i+1]));
+		// }
 		
 		console.log('MAP:');
 		console.log(JSON.stringify(map));
