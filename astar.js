@@ -36,6 +36,7 @@ function mapOfNodes(map) {
 		}
 		jList.push(kList);
 	}
+	return jList;
 }
 
 function path(map, startNode, endNode) {
