@@ -7,6 +7,11 @@ function astar(map, start, end) {
 		startNode = map[start.j][start.k],
 		endNode = map[end.j][end.k];
 
+
+	console.log(map);
+	console.log(startNode);
+	console.log(endNode);
+
 	return path(map, startNode, endNode);
 
 }
@@ -47,7 +52,9 @@ function path(map, startNode, endNode) {
 		gScore = {},
 		fScore = {};
 
-	gScore[startNode.j + "," + startNode.k] = 0
+	console.log(startNode.j + "," + startNode.k);
+
+	gScore[startNode.j + "," + startNode.k] = 0;
 	fScore[startNode.j + "," + startNode.k] = gScore + hCost(map, startNode, endNode);
 
 	while(openQueue.length > 0) {

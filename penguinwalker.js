@@ -177,20 +177,27 @@ function got_gamestate(turn_number, map, players){
 
 		var startNode;
 
-		if(players[0].name === myname) {
-			startNode = players[0].position.split(', ');
-			startNode = {
-				j: startNode[0],
-				k: startNode[1]
-			}
+		console.log(players[0].position.split(', '));
+
+		startNode = players[0].position.split(', ');
+		startNode = {
+			j: startNode[0],
+			k: startNode[1]
 		}
+
+		console.log('before endnode');
 
 		var endNode = {
 			j: 15,
 			k: 6
 		};
 
+		console.log('before nodelist');
+
 		var nodeList = astar.astar(map, startNode, endNode);
+
+
+		console.log('after astar');
 
 		// for(var i = 0;i<3;i++) {
 		// 	move(toDirection(nodeList[i], nodeList[i+1]));
