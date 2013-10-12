@@ -1,27 +1,109 @@
-var PriorityQueue = require('libs/priorityQueue.js');
+var pq = require('priority_queue'),
+	sets = require('simplesets');
 
-function astar() {
+
+function astar(map, start, end) {
+	var map = mapOfNodes(map),
+		startNode = map[start.j][start.k],
+		endNode = map[start.j][end.k];
+
+	return path(map, startNode, endNode);
 
 }
 
 exports.astar = astar;
 
+function compare(a, b) {
+  if (a.fScore < b.fScore)
+     return -1;
+  if (a.fscore > b.score)
+     return 1;
+  // a must be equal to b
+  return 0;
+}
+
+function mapOfNodes(map) {
+	jList = []
+	for(j = 0; j < map.length; j++) {
+		kList = []
+		for(k = 0; k < map[0].length; k++) {
+			kList.add(
+				{
+					j: j,
+					k: k,
+					value: map[j][k]
+				});
+		}
+		jList.push(kList);
+	}
+}
+
 function path(map, startNode, endNode) {
 	
-	var openList = [],
-		closedList = [startNode],
-		surroundingNodes = surroundingNodes(startNode),
-		cheapestNode,
-		lowestFScore = Number.MAX_VALUE,
-		openQueue = PriorityQueue({ low: true });
 
-	costSurroundingNodes = costSurroundingNodes(map, startNode, endNode);
+	var closedSet = new sets.Set(),
+		openQueue = pq.PriorityQueue(compare),
+		cameFrom = {},
+		gScore = {},
+		fScore = {};
 
-	for(var i = 0; i < surroundingNodes.length; i++) {
-		surroundingNodes[i].fScore = gCost(surroundingNodes[i]); + hCost(map, surroundingNodes[i], endNode);
-		openQueue.push(surroundingNodes[i], surroundingNodes[i].fScore);
+	gScore[startNode.j + "," + startNode.k] = 0
+	fScore[startNode.j + "," + startNode.k] = gScore + hCost(map, startNode, endNode);
+
+	while(openQueue.length > 0) {
+		current = openQueue.shift();
+
+		if(current === endNode) {
+			return reconstructPath(cameFrom, goal);
+		}
+
+		closedList.push(current);
+		neighbors = surroundingNodes(current);
+		for(int i = 0; i < neighbors.length; i++) {
+			neighbor = neighbors[i];
+			tentativeGScore = gScore[current.j + "" + current.k] + gCost(neighbor);
+			tentativeFScore = tenativeGScore + hCost(map, current, neighbor);
+
+			if closedSet.has(neighbor) && tentativeFScore >= fScore[neighbor.j + "," + neighbor.k] {
+				// Do nothing
+			} else if(elementNotInQueue(queue, neighbor) || tentativeFScore > fScore[neighbor.j + "," + neighbor.k]) {
+				cameFrom[neighbor.j + "," + neighbor.k] = current;
+				gScore[neighbor.j + "," + neighbor.k] = tentativeGScore;
+				fScore[neighbor.j + "," + neighbor.k] = tentativeFScore;
+				if(elementNotInQueue(openQueue, neighbor)) {
+					openQueue.push(neighbor);
+				}
+
+			}
+		}
 	}
+	return {error: "Could not find path"};
+}
 
+function reconstructPath(cameFrom, currentNode) {
+	if(cameFrom[currentNode.j + "," + curentNode.k] !== "Undefined") {
+		path = reconstructPath(cameFrom, cameFrom[currentNode.j + "," + curentNode.k]);
+		path.push(currentNode);
+		return path;
+	} else {
+		return [currentNode];
+	}
+}
+
+function clone(obj) { if (null == obj || "object" != typeof obj) return obj; var copy = obj.constructor(); for (var attr in obj) { if (obj.hasOwnProperty(attr)) copy[attr] = obj[attr]; } return copy; }
+
+function elementNotInQueue(queue, element) {
+	newQueue = clone(queue);
+	while(newQueue.length > 0) {
+		if(newQueue.shift() === element) {
+			return false;
+		}
+	}
+	return true;
+}
+
+function reconstructPath(cameFrom, currentNode) {
+	return null;
 }
 
 function costSurroundingNodes(map, surroundingNodes, endNode) {
@@ -34,8 +116,8 @@ function costSurroundingNodes(map, surroundingNodes, endNode) {
 	return costArray;
 }
 
-function gCost(map, adjacentNode) {
-	return calculateNodeCost(map[adjacentNode.y][adjacentNode.x]);
+function gCost(map, node) {
+	return calculateNodeCost(map[node.j][node.k]);
 }
 
 function hCost(map, currentNode, endNode) {
@@ -56,7 +138,7 @@ function hCost(map, currentNode, endNode) {
 	return cheapestAirPathCost;
 }
 
-function recursiveAirDistance(currentNode, endNode, airPath, map) {
+function recursiveAirPath(currentNode, endNode, airPath, map) {
 
 	if(currentNode === endNode) {
 		return airPath.push(endNode);
@@ -65,32 +147,30 @@ function recursiveAirDistance(currentNode, endNode, airPath, map) {
 	var adjacentNodes = surroundingNodes(currentNode),
 		lowestCostNode = {
 			airDist: Number.MAX_VALUE,
-			x: 0,
-			y: 0
+			j: 0,
+			k: 0
 		};
 
-	for(var i = 0;i < adjacentNodes.length;i++) {
-		var airDistance = airDistance(map, adjacentNodes[i], endNode);
+	for(var i = 0; i < adjacentNodes.length; i++) {
+		var airDistance = airDistance(adjacentNodes[i], endNode);
 		if(airDistance < lowestCostNode.airDist) {
-			lowestCostNode = {
-				airDist: airDistance,
-				x: adjacentNodes.x,
-				y: adjacentNodes.y
-			}
+			lowestCostNode = adjacentNodes[i];
+			lowestCostNode.airDistance = airDistance;
 		}
 	}
 
 	airPath.push(lowestCostNode);
 
-	recursiveAirDistance(lowestCostNode, endNode, map);
+	recursiveAirPath(lowestCostNode, endNode, map);
 
 	return airPath;
 }
 
-function airPathCost(map, startNode, endNode, airPath) {
+function airPathCost(map, startNode, endNode) {
+	var airPath = [];
+	recursiveAirPath(startNode, endNode, airPath, map);
 
 	var cost = 0;
-
 	for(var i=0;i<airPath.length;i++) {
 		cost += calculateNodeCost(getNodeValue(airPath[i])); // get value of node (return node value)
 	}
@@ -98,7 +178,7 @@ function airPathCost(map, startNode, endNode, airPath) {
 	return cost;
 }
 
-function airDistance(map, node, endNode) {
+function airDistance(currentNode, endNode) {
 
 	var k = endNode.k - currentNode.k;
 	var j = endNode.j - currentNode.j;
@@ -107,43 +187,43 @@ function airDistance(map, node, endNode) {
 	return Math.sqrt(sum);
 }
 
-function surroundingNodes(start) {
+function surroundingNodes(map, node) {
 	var surroundingNodes = [];
 
 	// Move upwards
-	if(start[0] > 0 && start[1] > 0) {
-		surroundingNodes.push({j: start[0]-1, k: start[1]-1});
+	if(node.j > 0 && node.k > 0) {
+		surroundingNodes.push(map{node.j-1][node.k-1]);
 	}
 
 	// Right up
-	if(start[0] > 0) {
-		surroundingNodes.push({j: start[0]-1, k: start[1]});
+	if(node.j > 0) {
+		surroundingNodes.push(map[node.j-1][node.k]);
 	}
 
 	// Left up
-	if(start[1] > 0) {
-		surroundingNodes.push({j: start[0], k: start[1]-1});	
+	if(node.k > 0) {
+		surroundingNodes.push(map[node.j][node.k-1]);	
 	}
 
 	// Right down
-	if(start[1] < map[0].length) {
-		surroundingNodes.push({j: start[0], k: start[1]+1});
+	if(node.k < map[0].length) {
+		surroundingNodes.push(map[node.j][node.k+1]);
 	}
 
 	// Left down
-	if(start[0] < map.length) {
-		surroundingNodes.push({j: start[0]+1, k: start[1]});
+	if(node.j < map.length) {
+		surroundingNodes.push([node.j+1][node.k]);
 	}
 
 	// Move down
-	if(start[0] < map.length && start[1] < map[0].length) {
-		surroundingNodes.push({j: start[0]+1, k: start[1]+1});
+	if(node.j < map.length && node.k < map[0].length) {
+		surroundingNodes.push([node.j+1][node.k+1]);
 	}
 	return surroundingNodes;
 }
 
 function getNodeValue(node, map) {
-	return map[node.j][node.k];
+	return map[node.j][node.k].value;
 } 
 
 
