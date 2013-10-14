@@ -4,7 +4,8 @@ var ranges = {
 	mortar: [2, 3, 4]
 };
 
-function distance(from, to) {
+function calcDistance(from, to) {
+	// console.log('distance' + JSON.stringify(from) + JSON.stringify(to));
 	var k = from.k,
 		j = from.j,
 		dk = Math.abs(k - to.k),
@@ -17,7 +18,7 @@ function distance(from, to) {
 		distance = (dj + dk - Math.floor(dj / 2));
 	}
 
-	if (j % 2 == 0) {
+	if (j % 2 === 0) {
 		if (dj % 2 == 1 && k > point.k) {
 			distance--;
 		}
@@ -25,11 +26,9 @@ function distance(from, to) {
 		distance--;
 	}
 
+	// console.log('distance returned ' + distance);
 	return distance;
 }
-
-var players = [{"primary-weapon":{"level":1,"name":"mortar"},"position":"14, 4","name":"kaare","score":-520,"health":26,"secondary-weapon":{"level":1,"name":"droid"}},{"primary-weapon":{"level":1,"name":"laser"},"position":"3, 9","name":"bob","score":-270,"health":100,"secondary-weapon":{"level":1,"name":"droid"}}];
-var map = {"data":[["V","V","V","V","V","V","V","V","V","V","V","V","V","V","V"],["V","V","V","V","V","V","V","V","V","V","V","V","V","V","V"],["V","C","C","V","V","O","O","V","G","G","V","V","V","V","V"],["V","E","E","G","V","O","G","G","G","G","S","V","V","V","V"],["V","V","G","G","V","G","G","G","G","G","G","V","V","V","V"],["V","G","G","E","V","V","V","G","G","G","G","G","G","V","V"],["V","C","C","E","G","V","V","G","G","G","G","G","G","V","V"],["V","G","G","G","V","V","V","V","G","G","G","G","G","V","V"],["V","V","G","G","O","G","R","G","G","G","G","G","G","V","V"],["V","V","G","G","G","G","G","R","G","G","G","V","G","G","V"],["V","V","G","G","G","G","G","G","V","G","G","G","G","G","G"],["V","G","G","G","G","G","G","G","V","G","C","C","G","G","G"],["S","G","G","G","G","G","G","G","V","G","E","G","G","V","V"],["V","V","G","O","G","G","O","G","V","C","G","E","O","V","V"],["V","V","V","G","G","V","G","V","V","V","C","V","V","V","V"]],"j-length":15,"k-length":15};
 
 function laserInRange(playerA, playerB) {
 	// can player A fire at player B
@@ -48,6 +47,8 @@ function laserInRange(playerA, playerB) {
 
 		var range = ranges.laser[level];
 
+		console.log('laser range: ' + range);
+
 		var playerApos = playerA.position.split(' ,');
 		var playerBpos = playerB.position.split(' ,');
 
@@ -62,10 +63,10 @@ function laserInRange(playerA, playerB) {
 		};
 
 		// completely out of range
-		if(playerB.j === playerA.j && Math.sqrt(Math.pow(playerB.k - playerA.k, 2)) <= range) {
+		if(playerB.j == playerA.j && Math.sqrt(Math.pow(playerB.k - playerA.k, 2)) <= range) {
 			return true;
 		}
-		if(playerB.k === playerA.k && Math.sqrt(Math.pow(playerB.j - playerA.j, 2)) <= range) {
+		if(playerB.k == playerA.k && Math.sqrt(Math.pow(playerB.j - playerA.j, 2)) <= range) {
 			return true;
 		}
 		if(Math.sqrt(Math.pow(playerB.k - playerA.k, 2)) <= range && Math.sqrt(Math.pow(playerB.j - playerA.j, 2)) <= range) {
@@ -76,11 +77,13 @@ function laserInRange(playerA, playerB) {
 	return false;
 }
 
-function morterInRange(playerA, playerB) {
+exports.laserInRange = laserInRange;
+
+function mortarInRange(playerA, playerB) {
 	// [-range, range] x [-range, range]
 
 		// does player A even have a laser
-	if(playerA['primary-weapon'].name === "morter" || playerB['secondary-weapon'].name === "morter") {
+	if(playerA['primary-weapon'].name === "morter" || playerA['secondary-weapon'].name === "morter") {
 
 		var level = 0;
 
@@ -106,7 +109,7 @@ function morterInRange(playerA, playerB) {
 			K: playerB[1]
 		};
 
-		if(distance(playerApos, playerBpos) <= range) {
+		if(calcDistance(playerApos, playerBpos) <= range) {
 			return true;
 		}
 	}
@@ -114,6 +117,8 @@ function morterInRange(playerA, playerB) {
 	return false;
 
 }
+
+exports.mortarInRange = mortarInRange;
 
 function droidInRange(playerA, playerB) {
 	// [-range, range] x [-range, range]
@@ -174,6 +179,8 @@ function inRange(players) {
 
 	return weaponsInRange;
 }
+
+exports.inRange = inRange;
 
 
 

@@ -1,21 +1,3 @@
-var map = [
-	["V","V","V","V","V","V","V","V","V","V","V","V","V","V","V"],
-	["V","V","V","V","V","V","V","V","V","V","V","V","V","V","V"],
-	["V","C","C","V","V","O","O","V","G","G","V","V","V","V","V"],
-	["V","E","E","G","V","O","G","G","G","G","S","V","V","V","V"],
-	["V","V","G","G","V","G","G","G","G","G","G","V","V","V","V"],
-	["V","G","G","E","V","V","V","G","G","G","G","G","G","V","V"],
-	["V","C","C","E","G","V","V","G","G","G","G","G","G","V","V"],
-	["V","G","G","G","V","V","V","V","G","G","G","G","G","V","V"],
-	["V","V","G","G","O","G","R","G","G","G","G","G","G","V","V"],
-	["V","V","G","G","G","G","G","R","G","G","G","V","G","G","V"],
-	["V","V","G","G","G","G","G","G","V","G","G","G","G","G","G"],
-	["V","G","G","G","G","G","G","G","V","G","C","C","G","G","G"],
-	["S","G","G","G","G","G","G","G","V","G","E","G","G","V","V"],
-	["V","V","G","O","G","G","O","G","V","C","G","E","O","V","V"],
-	["V","V","V","G","G","V","G","V","V","V","C","V","V","V","V"]
-];
-
 function chooseWeapons(map) {
 	var c = "";
 	var e = "";
@@ -54,7 +36,9 @@ function chooseWeapons(map) {
 		myweapons = ['mortar', 'laser'];
 	}
 
-	connection.send_loadout(myweapons[0], myweapons[1]); // tell the server
+	return myWeapons;
+
+	
 }
 
-chooseWeapons(map);
+exports.chooseWeapons = chooseWeapons;

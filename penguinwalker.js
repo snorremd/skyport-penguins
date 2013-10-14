@@ -1,227 +1,214 @@
 var skyport = require('./nodejs/skyport.js'),
-	astar = require('./astar.js');
+	greedy = require('./greedy.js'),
+	canshoot = require('./canshoot.js'),
+	mineR = 0,
+	mineE = 0;
 
 if(process.argv.length != 3){
-    console.log("Usage: node penguinwalker.js name_of_the_bot");
-    process.exit();
+	console.log("Usage: node penguinwalker.js name_of_the_bot");
+	process.exit();
 }
 
 var myname = process.argv[2],
 	myweapons = [],
 	map = [];
 
-function chooseWeapons(map, players) {
-	// we should probably look at the map or just go with a fixed weapons strategy
-	// available weapons: laser, mortar, droid
-	myweapons = ['laser', 'mortar']; // choose weapons
-
-	connection.send_loadout(myweapons[0], myweapons[1]); // tell the server
-}
-
-function getPlayerCoordinates(players) {
-
-	coords = {
-		us: {j: j, k: k},
-		enemy: {j: j, k: k}
-	};
-}
-
-// from and to are coord objects
-function toDirection(from, to) {
-	var directon = "";
-
-	if(from.j -1 === to.j && from.k -1 === to.k) {
-		direction = "up";
+function shoot(weapon, from, to) {
+	if(weapon === "laser") {
+		laser(from,to);
 	}
-	else if(from.j -1 === to.j && from.k === to.k) {
-		direction = "right-up";
-	}
-	else if(from.j === to.j && from.k - 1 === to.j) {
-		direction = "left-up";
-	}
-	else if(from.j === to.j && from.k + 1 === to.k) {
-		direction = "right-down";
-	}
-	else if(from.j + 1 === to.j && from.k === to.k) {
-		direction = "left-down"
-	}
-	else if(from.j + 1 === to.j && from.k + 1 === to.k) {
-		direction = "down";
-	}
-
-	return direction;
-}
-
-function toCoords(from, direction) {
-	if(direction === "up") {
-		return { j: from.j-1, k: from.k-1 };
-	}
-
-	else if(direction === "right-up") {
-		return { j: from.j-1, k: from.k };
-	}
-
-	else if(direction === "left-up") {
-		return { j: from.j, k: from.k-1 };
-	}
-
-	else if(direction === "right-up") {
-		return { j: from.j-1, k: from.k };
-	}
-
-	else if(direction === "left-up") {
-		return { j: from.j, k: from.k-1 };
-	}
-
-	else if(direction === "right-down") {
-		return { j: from.j, k: from.k+1 };
-	}
-
-	else if(direction === "left-down") {
-		return { j: from.j+1, k: from.k };
-	}
-
-	else if(direction === "down") {
-		return { j: from.j+1, k: from.k+1 };		
+	if(weapon === 'mortar') {
+		mortar(from, to);
 	}
 }
 
-/* --- calculations --- */
-/* AOE = level 4 */
-function calculateDamage(weapon, level, unusedTurns) {
-	unusedTurns = unusedTurns || 1;
+function laser(ourCoords, theirCoords){
+	var direction = getDirection(ourCoords, theirCoords);
+    console.log("Shooting the laser " + direction);
 
-	var damage = {
-		droid: [22, 24, 26, 10], // lvl 1,2,3, aoe
-		mortar: [20, 20, 25, 18],
-		laser: [16, 18, 22]
-	};
-
-	return Math.round(damage[weapon][level] + unusedTurns*(0.2*damage[weapon][level]));
+    connection.attack_laser(direction);
 }
 
-calculateDamage('droid', 2, 1);
-
-// heuristic function kinda
-function calculateMovementCost(map, players) {
-	var tileCosts = {
-		// IMPOSSIBLE TO WALK TO
-		V: Number.MAX_VALUE, // VOID
-		S: Number.MAX_VALUE, // SPAWN
-		O: Number.MAX_VALUE, // ROCK
-
-		// RESOURCES		
-		C: 0, // SCRAP - UPGRADE DROID
-		E: 0, // EXPLODIUM - UPGRADE MORTER
-		R: 0,  // RUBIDIUM - UPGRADE LASER
-		
-		// NEUTRAL
-		G: 0 // GRASS
-	};
-}
-
-/* --- API ACTION CALLS --- */
-function upgrade(){
-    // randomly upgrade one of our weapons
-    connection.upgrade(randomchoice(myweapons));
-}
-function mine(){connection.mine();}
-
-function move(direction){
-    connection.move(direction);
-}
-
-function laser(){
-    console.log("Shooting the laser");
-    directions = ["up", "down", "left-up", "left-down", "right-up", "right-down"];
-    connection.attack_laser(randomchoice(directions));
-}
-function mortar(){
+function mortar(ourCoords, theirCoords){
     console.log("Shooting the mortar");
-    // [-4, 4] x [-4, 4] area
-    var j = Math.floor(Math.random()*9) - 4;
-    var k = Math.floor(Math.random()*9) - 4;
-    
+
+    ourCoords.j;
+    ourCoords.k;
+
+    var j = theirCoords.j - ourCoords.j;
+    var k = theirCoords.k - ourCoords.k;
+
     if(j === 0 && k === 0){ // don't hit yourself
 		j = 2; // unless you enjoy that kind of thing, that is
 		k = 2;
     }
     connection.attack_mortar(j, k); // j,k coordinates relative to our position
 }
-function droid(){
-    console.log("Shooting the droid");
-    var commands = [];
-    for(i = 0; i < 7; i++){
-	commands.push(randomchoice(["up", "down", "left-up", "left-down", "right-up", "right-down"]));
-    }
-    connection.attack_droid(commands);
+
+function getDirection(from, to) {
+	from = {
+		j: parseInt(from.j, 10),
+		k: parseInt(from.k, 10)
+	};
+	to = {
+		j: parseInt(to.j, 10),
+		k: parseInt(to.k, 10)
+	};
+	var direction = "up";
+
+	// console.log('getDirection: ' + JSON.stringify(from) + JSON.stringify(to));
+
+	if(from.j > to.j && from.k > to.k) {
+		direction = "up";
+	}
+	else if(from.j < to.j && from.k < to.k) {
+		direction = "down";
+	}
+	else if(from.j > to.j && from.k == to.k) {
+		direction = "right-up";
+	}
+	else if(from.j == to.j && from.k > to.k) {
+		direction = "left-up";
+	}
+	else if(from.j == to.j && from.k < to.k) {
+		direction = "right-down";
+	}
+	else if(from.j < to.j && from.k == to.k) {
+		direction = "left-down";
+	}
+	
+
+	return direction;
 }
 
-function movementChoice(list) {}
+function move(direction){
+	// console.log('MOVE: ' + direction);
+	connection.move(direction);
+}
+
+function canUpgrade(weapon, level) {
+	level = level-1;
+	var resourcesNeeded = {
+		laser: [3, 5],
+		mortar: [3, 5]
+	};
+
+	if(level >= 3) {
+		return false;
+	}
+	else if(weapon == 'laser') {
+		if(mineR >= resourcesNeeded.laser[level-1]) {
+			return true;
+		}
+		return false;
+	}
+	else if(weapon == 'mortar') {
+		if(mineE >= resourcesNeeded.mortar[level-1]) {
+			return true;
+		}
+		return false;
+	}
+
+	return false;
+}
+
+function getCoordinates(player) {
+	var playerCoords = player.position.split(', ');
+		playerCoords = {
+			j: playerCoords[0],
+			k: playerCoords[1]
+		};
+	return playerCoords;
+}
 
 function got_connection(){
-    console.log("got connection, sending handshake...");
-    connection.send_handshake(myname);
+	console.log("got connection, sending handshake...");
+	connection.send_handshake(myname);
 }
 function got_handshake(){console.log("got handshake");}
 function got_gamestart(map, players){
 
-    console.log("got gamestart");
+	// myweapons = chooseWeapons.chooseWeapons(map);
 
-    chooseWeapons(map);
+	myweapons = ['laser', 'mortar'];
+
+	connection.send_loadout(myweapons[0], myweapons[1]); // tell the server
+
+	console.log("got gamestart");
 }
+
+var endNode = false;
+
 function got_gamestate(turn_number, map, players){
-    console.log("got gamestate");
-    if(players[0]["name"] == myname){ // its our turn
-		console.log("my turn!");
+	map = map.data;
 
-		var startNode;
+	if(players[0].name === myname) {
+		var ourCoords = getCoordinates(players[0]),
+			enemyCoords = getCoordinates(players[1]);
 
-		console.log(players[0].position.split(', '));
-
-		startNode = players[0].position.split(', ');
-		startNode = {
-			j: startNode[0],
-			k: startNode[1]
+		
+		if(canshoot.laserInRange(players[0], players[1])) {
+			shoot('laser', ourCoords, enemyCoords);
+		}
+		
+		else if(canshoot.mortarInRange(players[0], players[1])) {
+			shoot('mortar', ourCoords, enemyCoords);
 		}
 
-		console.log('before endnode');
+		else if(map[ourCoords.j][ourCoords.k] == "E" || map[ourCoords.j][ourCoords.k] == "R") {
+			mine();
+			endNode = false;
+		}
+		else {
+			console.log('LASER: ' + canshoot.laserInRange(players[0], players[1]));
+			console.log('MORTAR: ' + canshoot.mortarInRange(players[0], players[1]));
 
-		var endNode = {
-			j: 15,
-			k: 6
-		};
+			// find resource
+			if(!endNode) {
+				for(var i =0;i<map.length;i++) {
+					for(var j = 0;j<map[i].length;j++) {
+						if(map[i][j] == "E" || map[i][j] == "R") {
+							endNode = { j: i, k: j};
+							break;
+						}
+					}
+				}
+				endNode = false;
+			}
 
-		console.log('before nodelist');
+			if(!endNode) {
+				endNode = enemyCoords;
+			}
 
-		var nodeList = astar.astar(map, startNode, endNode);
+			console.log('ENDNODE: ' + endNode);
 
+			var nodesList = [];
+				var next = greedy.next(map, ourCoords, endNode, nodesList);
+				nodesList.push(next);
 
-		console.log('after astar');
+				next = greedy.next(map, nodesList[0], endNode, nodesList);
+				console.log(nodesList);
+				nodesList.push(next);
 
-		// for(var i = 0;i<3;i++) {
-		// 	move(toDirection(nodeList[i], nodeList[i+1]));
-		// }
-		
-		console.log('MAP:');
-		console.log(JSON.stringify(map));
+				next = greedy.next(map, nodesList[1], endNode, nodesList);
+				nodesList.push(next);
 
-		console.log('PLAYERS');
-		console.log(JSON.stringify(players));
-		// randomly shoot one of the weapons, upgrade or mine the tile
-		// randomchoice([laser, mortar, droid, upgrade, mine])();
-    }
+				console.log('NODESLIST: ' + JSON.stringify(nodesList));
+
+				move(getDirection(ourCoords, greedy.next(map, ourCoords, endNode)));
+				move(getDirection(nodesList[0], nodesList[1]));
+				move(getDirection(nodesList[1], nodesList[2]));
+		}
+	}
+
 }
 
 
-
-
-
-
-
-function got_action(type, from, rest){console.log("got action");}
+function got_action(type, from, rest){//console.log("got action");
+}
 function got_error(message){console.log("got error: '" + message + "'");}
-function got_endturn(){console.log("got endturn");}
+function got_endturn(){//console.log("got endturn");
+}
 
 // Establish the connection
 connection = new skyport.SkyportConnection("localhost", 54321);
